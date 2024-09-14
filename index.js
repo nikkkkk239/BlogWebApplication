@@ -3,7 +3,6 @@ const path = require('path')
 const express = require('express')
 const connectDb  = require('./connection')
 const userRouter = require("./routers/user")
-const blogRouter = require('./routers/blog')
 const cookieParser = require('cookie-parser')
 const checkForCookie = require('./middlewares/checkAuth')
 
@@ -21,6 +20,5 @@ app.use(express.static('public'))
 app.use(checkForCookie());
 
 app.use('/',userRouter)
-app.use('/blog',blogRouter)
 
 app.listen(3000,()=>console.log("Server started at 3000."))

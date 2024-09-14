@@ -2,10 +2,29 @@ const express = require("express")
 const USER = require("../models/user");
 const { verifyUser } = require("../services/authentication");
 const router = express.Router();
+const path = require('path')
+const BLOG = require('../models/blog')
+const multer = require('multer')
 
-router.get('/',(req,res)=>{
+
+const storage = multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,path.resolve('./public/uploads/'))
+    },
+    filename:function(req,file,cb){
+        const filename = `${Date.now()}-${file.originalname}`
+        cb(null,filename)
+    }
+})
+const uploads = multer({storage:storage})
+
+
+
+router.get('/',async(req,res)=>{
+    const blogs = await BLOG.find({}).sort('createdAt');
     return res.render("home",{
-        user : req.user
+        user : req.user,
+        blogs
     })
 })
 router.get('/signup',(req,res)=>{
@@ -40,5 +59,28 @@ router.post('/signin',async(req,res)=>{
 router.get('/logout',(req,res)=>{
     return res.clearCookie('token').redirect('/')
 })
-
+router.get('/addBlog',(req,res)=>{
+    console.log(req.user)
+    return res.render('addBlog',{
+        user:req.user
+    })
+})
+router.post('/addBlog',uploads.single('coverImageUrl'),async(req,res)=>{
+    const {title,bodyContent} = req.body;
+    const blog = await BLOG.create({
+        createdBy : req.user._id,
+        title,
+        bodyContent,
+        coverImageUrl :`uploads/${req?.file?.filename}`
+    })
+    return res.redirect(`/blog/${blog._id}`)
+})
+router.get('/blog/:blogId',async(req,res)=>{
+    const blogId = req.params.blogId;
+    const blog = await BLOG.findOne({_id:blogId})
+    return res.render('blog',{
+        user:req.user,
+        blog
+    })
+})
 module.exports = router

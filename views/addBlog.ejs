@@ -6,10 +6,24 @@
 </head>
 <body>
     <%- include('./partials/nav')%>
-    <h1>Create Interesting blogs : -</h1>
-    <form action="/blog/add" method="post">
-        
-    </form>
+    <div class="container mt-4">
+        <h1>Create Interesting blogs : -</h1>
+        <form action="/addBlog" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="exampleForTitle" class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" id="exampleForTitle">
+            </div>
+            <div class="input-group mb-3">
+                <input type="file" class="form-control" name="coverImageUrl" id="inputGroupFile02">
+                <label class="input-group-text" for="inputGroupFile02">Add Cover Image</label>
+            </div>
+            <div class="form-floating mb-3">
+                <textarea class="form-control" placeholder="Leave a comment here" name="bodyContent" id="floatingTextarea"></textarea>
+                <label for="floatingTextarea">Content</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
     <%- include('./partials/script')%>
 </body>
 </html>
