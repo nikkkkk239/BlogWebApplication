@@ -2,16 +2,49 @@
 <html lang="en">
 <head>
     <%- include('./partials/head')%>
-    <title>BLog</title>
+    <link rel="stylesheet" href="../styles/style.css">
+    <title>Blog</title>
 </head>
 <body>
     <%- include('./partials/nav')%>
-    <div class="container mt-3">
-        <img src=<%= locals.blog %> alt="...">
+    <div class="container mt-3 d-flex mb-2">
+        <img src="/<%= locals.blog.createdBy.profilePhotoUrl %>" class="rounded-circle" width="27px" height="27px" alt="...">
+        <div class="mx-2 "><%= locals.blog.createdBy.fullName %></div>
+    </div>
+    <div class="container">
+        <!-- Ensure the URL is correctly formatted -->
+        <img src="/<%= locals.blog.coverImageUrl %>" width="40%" alt="Cover Image">
         <h1><%= locals.blog.title %></h1>
         <p><%= locals.blog.bodyContent %></p>
 
+        <form action="/comment/<%= blog._id %>" class="mt-4" method="post">
+            <div class="form-floating mb-2">
+                <textarea class="form-control" placeholder="Leave a comment here" name="content" id="floatingTextarea"></textarea>
+                <label for="floatingTextarea">Comment</label>
+            </div>
+            <button type="submit" class="btn btn-primary mb-3">Add comment</button>
+        </form>
+
+        <% if (locals.comments) { %>
+            <h1>Comments</h1>
+            <% locals.comments.forEach(comment => { %>
+                <div class="card mb-2">
+                    <div class="card-header d-flex align-items-center border-bottom">
+                      <img src="/<%= comment.createdBy.profilePhotoUrl %>" class="rounded-circle" width="25px" height="25px" alt="">
+                      <div class="ms-3">
+                        <h6 class="mb-0 fs-sm"><%= comment.createdBy.fullName %></h6>
+                      </div>
+                      <button class="btn text-muted ms-auto" type="btn"><i class="fas fa-ellipsis-v"></i></button>
+                    </div>
+                    <div class="card-body">
+                      <%= comment.content %>
+                    </div>
+                  </div>
+            <% }) %>
+        <% } %>
     </div>
+    
+    
     <%- include('./partials/script')%>
 </body>
 </html>

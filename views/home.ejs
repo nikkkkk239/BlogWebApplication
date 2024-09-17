@@ -6,9 +6,9 @@
 </head>
 <body>
     <%- include('./partials/nav')%>
-    <div class="mt-4 container">
+    <div class="mt-4 container d-flex flex-wrap">
         <% locals.blogs.forEach(blog => { %>
-            <div class="card mb-3 mr-3 ml-3"  style="width: 18rem;">
+            <div class="card mb-3 ml-3 "  style="width: 18rem;">
                 <img src=<%= blog.coverImageUrl %> class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title"><%= blog.title %></h5>

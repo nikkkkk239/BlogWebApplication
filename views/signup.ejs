@@ -7,7 +7,8 @@
 <body>
   
     <%- include('./partials/nav')%>
-    <h1>signup</h1>
+    <div class="container mt-3">
+      <h1>signup</h1>
     <% if (locals.errorMessage) { %>
       <p><%= locals.errorMessage %></p>
     <% } %>
@@ -27,6 +28,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
+    </div>
     <%- include('./partials/script')%>
 </body>
 </html>

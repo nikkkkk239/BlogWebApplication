@@ -4,8 +4,13 @@ const { verifyUser } = require("../services/authentication");
 const router = express.Router();
 const path = require('path')
 const BLOG = require('../models/blog')
-const multer = require('multer')
+const Comment = require('../models/comment')
+const multer = require('multer');
+const { default: mongoose } = require("mongoose");
+const hardCheckAuth = require("../middlewares/hardCheckAuth");
+const jwt = require("jsonwebtoken");
 
+const secret = '$d$dkache'
 
 const storage = multer.diskStorage({
     destination:function(req,file,cb){
@@ -16,7 +21,17 @@ const storage = multer.diskStorage({
         cb(null,filename)
     }
 })
+const storage2 = multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,path.resolve('./public/profilePic'))
+    },
+    filename:function(req,file,cb){
+        const filename = `${req.user.fullName}-${file.originalname}`
+        cb(null,filename)
+    }
+})
 const uploads = multer({storage:storage})
+const updateProfile = multer({storage:storage2})
 
 
 
@@ -75,12 +90,54 @@ router.post('/addBlog',uploads.single('coverImageUrl'),async(req,res)=>{
     })
     return res.redirect(`/blog/${blog._id}`)
 })
-router.get('/blog/:blogId',async(req,res)=>{
+router.get('/blog/:blogId', async (req, res) => {
+    const { blogId } = req.params;
+
+    // Validate the ObjectId
+    if (!mongoose.Types.ObjectId.isValid(blogId)) {
+        return res.status(400).send('Invalid Blog ID format');
+    }
+
+    try {
+        const blog = await BLOG.findById(blogId).populate('createdBy');
+        if (!blog) {
+            return res.status(404).send('Blog not found');
+        }
+        const comments = await Comment.find({blogId:blogId}).sort('createdAt').populate('createdBy')
+
+        return res.render('blog', {
+            user: req.user,
+            blog,
+            comments:comments
+        });
+    } catch (error) {
+        console.error('Error fetching blog:', error);
+        return res.status(500).send('Server error');
+    }
+});
+
+
+
+
+router.post('/comment/:blogId',hardCheckAuth(),async(req,res)=>{
+    const {content} = req.body;
     const blogId = req.params.blogId;
-    const blog = await BLOG.findOne({_id:blogId})
+    if(!content) return res.render('blog')
+    await Comment.create({
+        createdBy:req?.user._id,
+        content,
+        blogId:req.params.blogId
+    })
+    const comments = await Comment.find({blogId:blogId}).sort('createdAt').populate('createdBy')
+   
+    const blog = await BLOG.findById(blogId).populate('createdBy');
+
     return res.render('blog',{
         user:req.user,
-        blog
+        blog,
+        comments
     })
 })
+
+
 module.exports = router
